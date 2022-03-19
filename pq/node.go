@@ -1,16 +1,12 @@
-package pq
+package main
 
 type node struct {
-	data     int8
+	data     byte
 	priority int
 	next     *node
 }
 
-func (n *node) getPriority() int {
-	return n.priority
-}
-
-func (n *node) getData() int8 {
+func (n *node) getData() byte {
 	return n.data
 }
 
@@ -19,11 +15,11 @@ func (n *node) push(other *node) *node {
 		other.next = n
 		return other
 	} else {
-		n.next = n.next.push(other)
+		if n.next == nil {
+			n.next = other
+		} else {
+			n.next = n.next.push(other)
+		}
 		return n
 	}
-}
-
-func (n *node) pop() int8 {
-	return n.data
 }
