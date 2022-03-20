@@ -1,12 +1,12 @@
 package pq
 
 type node struct {
-	data     byte
+	data     interface{}
 	priority int
 	next     *node
 }
 
-func (n *node) getData() byte {
+func (n *node) getData() interface{} {
 	return n.data
 }
 

@@ -25,7 +25,7 @@ func main() {
 	}
 	var s string
 	for !q.IsEmpty() {
-		s = s + string(q.Pull())
+		s = s + string(q.Pull().(byte))
 	}
 	fmt.Println(s)
 }
