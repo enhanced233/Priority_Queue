@@ -6,7 +6,8 @@ import (
 )
 
 func main() {
-	q := pq.Queue{}
+	q := pq.QueuePriorN{}
+	q.Initialize(11)
 	mapData := map[byte][]int{
 		'H': {1},
 		'e': {2},
@@ -19,7 +20,7 @@ func main() {
 	}
 	for i, v := range mapData {
 		for j := 0; j < len(v); j++ {
-			q.Insert(i, v[j])
+			q.Insert(i, uint(v[j]))
 		}
 
 	}

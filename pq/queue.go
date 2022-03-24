@@ -2,7 +2,8 @@ package pq
 
 type node struct {
 	data     interface{}
-	priority int
+	priority uint
+	next     *node
 }
 
 type Queue struct {
@@ -13,7 +14,7 @@ func (q *Queue) IsEmpty() bool {
 	return len(q.NodeList) == 0
 }
 
-func searchPosition(list []*node, priority int) int {
+func searchPosition(list []*node, priority uint) int {
 	n := len(list)
 	max := n
 	min := 0
@@ -36,7 +37,7 @@ func searchPosition(list []*node, priority int) int {
 	return max
 }
 
-func (q *Queue) Insert(data interface{}, priority int) {
+func (q *Queue) Insert(data interface{}, priority uint) {
 	newNode := &node{data: data, priority: priority}
 	if q.IsEmpty() {
 		q.NodeList = append(q.NodeList, newNode)
