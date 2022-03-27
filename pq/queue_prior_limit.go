@@ -1,42 +1,43 @@
 package pq
 
 type QueuePriorN struct {
-	fifo []*queueFIFO
-	N    uint
-}
-
-func (q *QueuePriorN) Initialize(N uint) {
-	q.N = N
-	q.fifo = make([]*queueFIFO, N)
-	for i := uint(0); i < q.N; i++ {
-		q.fifo[i] = &queueFIFO{}
-	}
+	fifo     map[uint]*queueFIFO
+	keyOrder []uint
 }
 
 func (q *QueuePriorN) IsEmpty() bool {
-	for i := uint(0); i < q.N; i++ {
-		if !q.fifo[i].isEmpty() {
+	for key, value := range q.fifo {
+		if q.keyExists(key) && !value.isEmpty() {
 			return false
 		}
 	}
 	return true
 }
 
+func (q *QueuePriorN) keyExists(priority uint) bool {
+	_, ok := q.fifo[priority]
+	return ok
+}
+
 func (q *QueuePriorN) Insert(data interface{}, priority uint) {
-	if q.N == 0 {
-		return
-	}
-	if priority > q.N {
-		priority = q.N - 1
+	if q.fifo == nil {
+		q.fifo = make(map[uint]*queueFIFO)
+		q.keyOrder = []uint{}
 	}
 	newNode := &node{data: data, priority: priority}
+	if !q.keyExists(priority) {
+		q.fifo[priority] = &queueFIFO{}
+		pos := searchPosition(q.keyOrder, priority)
+		q.keyOrder = append(q.keyOrder[:pos], append([]uint{priority}, q.keyOrder[pos:]...)...)
+	}
 	q.fifo[priority].insert(newNode)
 }
 
 func (q *QueuePriorN) Pull() interface{} {
-	for i := uint(0); i < q.N; i++ {
-		if !q.fifo[i].isEmpty() {
-			return q.fifo[i].pull()
+	for i := 0; i < len(q.keyOrder); i++ {
+		priority := q.keyOrder[i]
+		if q.keyExists(priority) && !q.fifo[priority].isEmpty() {
+			return q.fifo[priority].pull()
 		}
 	}
 	return nil
@@ -68,4 +69,27 @@ func (q *queueFIFO) pull() interface{} {
 	data := q.head.data
 	q.head = q.head.next
 	return data
+}
+
+func searchPosition(list []uint, priority uint) int {
+	n := len(list)
+	max := n
+	min := 0
+	current := n / 2
+	for (max - min) > 0 {
+		if list[current] <= priority {
+			min = current
+			current += (max - min) / 2
+		} else {
+			max = current
+			current -= (max - min) / 2
+		}
+		if (max - min) == 1 {
+			if list[min] <= priority {
+				return max
+			}
+			return min
+		}
+	}
+	return max
 }

@@ -14,7 +14,7 @@ func (q *Queue) IsEmpty() bool {
 	return len(q.NodeList) == 0
 }
 
-func searchPosition(list []*node, priority uint) int {
+func searchPositionNodes(list []*node, priority uint) int {
 	n := len(list)
 	max := n
 	min := 0
@@ -42,7 +42,7 @@ func (q *Queue) Insert(data interface{}, priority uint) {
 	if q.IsEmpty() {
 		q.NodeList = append(q.NodeList, newNode)
 	} else {
-		pos := searchPosition(q.NodeList, priority)
+		pos := searchPositionNodes(q.NodeList, priority)
 		q.NodeList = append(q.NodeList[:pos], append([]*node{newNode}, q.NodeList[pos:]...)...)
 	}
 }
