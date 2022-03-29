@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"math/rand"
 	"pq/pq"
 	"testing"
 	"time"
@@ -37,6 +38,57 @@ func TestQueue(t *testing.T) {
 	}()
 	<-end
 	if s == out {
+		fmt.Println("Correct!")
+	} else {
+		fmt.Println("ERROR: Incorrect!")
+	}
+}
+
+func TestQueueConcurrency(t *testing.T) {
+	line := "World"
+	s := ""
+	mul := 1000
+	for i := 0; i < mul; i++ {
+		s = s + line
+	}
+	q := pq.QueuePriorN{}
+	N := 100 // number of priorities
+	out := ""
+	end := make(chan int)
+	go func() {
+		for i := 0; i < len(s); i++ {
+			rand.Seed(time.Now().UnixNano())
+			priority := uint(rand.Intn(N))
+			q.Insert(s[i], priority)
+
+		}
+	}()
+	go func() {
+		for len(out) < len(s) {
+			data, ok := q.Pull().(byte)
+			if ok {
+				out = out + string(data)
+			}
+		}
+		end <- 0
+	}()
+	<-end
+	count := map[byte]int{
+		'W': 0,
+		'o': 0,
+		'r': 0,
+		'l': 0,
+		'd': 0}
+	for i := 0; i < len(out); i++ {
+		count[out[i]]++
+	}
+	check := true
+	for _, v := range count {
+		if v != mul {
+			check = false
+		}
+	}
+	if check {
 		fmt.Println("Correct!")
 	} else {
 		fmt.Println("ERROR: Incorrect!")

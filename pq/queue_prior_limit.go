@@ -1,16 +1,22 @@
 package pq
 
+import "sync"
+
 type QueuePriorN struct {
+	mutex    sync.Mutex
 	fifo     map[uint]*queueFIFO
 	keyOrder []uint
 }
 
 func (q *QueuePriorN) IsEmpty() bool {
+	q.mutex.Lock()
 	for key, value := range q.fifo {
 		if q.keyExists(key) && !value.isEmpty() {
+			q.mutex.Unlock()
 			return false
 		}
 	}
+	q.mutex.Unlock()
 	return true
 }
 
@@ -20,6 +26,7 @@ func (q *QueuePriorN) keyExists(priority uint) bool {
 }
 
 func (q *QueuePriorN) Insert(data interface{}, priority uint) {
+	q.mutex.Lock()
 	if q.fifo == nil {
 		q.fifo = make(map[uint]*queueFIFO)
 		q.keyOrder = []uint{}
@@ -31,15 +38,19 @@ func (q *QueuePriorN) Insert(data interface{}, priority uint) {
 		q.keyOrder = append(q.keyOrder[:pos], append([]uint{priority}, q.keyOrder[pos:]...)...)
 	}
 	q.fifo[priority].insert(newNode)
+	q.mutex.Unlock()
 }
 
 func (q *QueuePriorN) Pull() interface{} {
+	q.mutex.Lock()
 	for i := 0; i < len(q.keyOrder); i++ {
 		priority := q.keyOrder[i]
 		if q.keyExists(priority) && !q.fifo[priority].isEmpty() {
+			q.mutex.Unlock()
 			return q.fifo[priority].pull()
 		}
 	}
+	q.mutex.Unlock()
 	return nil
 }
 
