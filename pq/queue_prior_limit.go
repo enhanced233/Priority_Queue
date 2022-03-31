@@ -21,8 +21,8 @@ func NewQueuePriorN(N uint) *QueuePriorN {
 }
 
 func (q *QueuePriorN) IsEmpty() bool {
-	//q.mutex.Lock()
-	//defer q.mutex.Unlock()
+	q.mutex.Lock()
+	defer q.mutex.Unlock()
 	for i := uint(0); i < q.N; i++ {
 		if !q.fifo[i].isEmpty() {
 			return false
@@ -36,14 +36,14 @@ func (q *QueuePriorN) Insert(data interface{}, priority uint) {
 		priority = q.N - 1
 	}
 	newNode := &node{data: data, priority: priority}
-	//q.mutex.Lock()
+	q.mutex.Lock()
 	q.fifo[priority].insert(newNode)
-	//q.mutex.Unlock()
+	q.mutex.Unlock()
 }
 
 func (q *QueuePriorN) Pull() interface{} {
-	//q.mutex.Lock()
-	//defer q.mutex.Unlock()
+	q.mutex.Lock()
+	defer q.mutex.Unlock()
 	for i := uint(0); i < q.N; i++ {
 		if !q.fifo[i].isEmpty() {
 			return q.fifo[i].pull()

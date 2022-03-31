@@ -44,34 +44,43 @@ func TestQueue(t *testing.T) {
 }
 
 func TestQueueConcurrency(t *testing.T) {
+	rand.Seed(time.Now().UnixNano())
 	line := "World"
 	s := ""
-	mul := 2400
+	mul := 2000
+	split := 10
+	out := ""
+	outCh := make(chan string, split)
+
 	for i := 0; i < mul; i++ {
 		s = s + line
 	}
-	N := 100 // number of priorities
+	length := len(s)
+	N := 3 // number of priorities
 	q := NewQueuePriorN(uint(N))
-	out := ""
-	end := make(chan int)
-	go func() {
-		for i := 0; i < len(s); i++ {
-			rand.Seed(time.Now().UnixNano())
-			priority := uint(rand.Intn(N))
-			q.Insert(s[i], priority)
-
-		}
-	}()
-	go func() {
-		for len(out) < len(s) {
-			data, ok := q.Pull().(byte)
-			if ok {
-				out = out + string(data)
+	for i := 0; i < split; i++ {
+		go func(i int) {
+			for j := i * (length / split); j < (i+1)*(length/split) || (i == split-1 && j < length); j++ {
+				priority := uint(rand.Intn(N))
+				q.Insert(s[j], priority)
 			}
-		}
-		end <- 0
-	}()
-	<-end
+		}(i)
+	}
+	for i := 0; i < split; i++ {
+		go func(i int) {
+			strOut := ""
+			for len(strOut) < length/split {
+				data, ok := q.Pull().(byte)
+				if ok {
+					strOut = strOut + string(data)
+				}
+			}
+			outCh <- strOut
+		}(i)
+	}
+	for i := 0; i < split; i++ {
+		out = out + <-outCh
+	}
 	count := map[byte]int{
 		'W': 0,
 		'o': 0,
