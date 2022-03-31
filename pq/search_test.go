@@ -1,16 +1,15 @@
-package main
+package pq
 
 import (
 	"fmt"
 	"math/rand"
-	"pq/pq"
 	"testing"
 	"time"
 )
 
 func TestQueue(t *testing.T) {
 	s := "Hello World!"
-	q := pq.QueuePriorN{}
+	q := Queue{}
 	N := 10 // number of priorities
 	out := ""
 	end := make(chan int)
@@ -47,12 +46,12 @@ func TestQueue(t *testing.T) {
 func TestQueueConcurrency(t *testing.T) {
 	line := "World"
 	s := ""
-	mul := 1000
+	mul := 2400
 	for i := 0; i < mul; i++ {
 		s = s + line
 	}
-	q := pq.QueuePriorN{}
 	N := 100 // number of priorities
+	q := NewQueuePriorN(uint(N))
 	out := ""
 	end := make(chan int)
 	go func() {
@@ -98,10 +97,12 @@ func TestQueueConcurrency(t *testing.T) {
 func benchmarkQueue(N int, b *testing.B) {
 	line := "Hello World!"
 	s := ""
+	b.StopTimer()
 	for i := 0; i < 100; i++ {
 		s = s + line
 	}
-	q := pq.QueuePriorN{}
+	b.StartTimer()
+	q := Queue{}
 	for n := 0; n < b.N; n++ {
 		out := ""
 		for i := 0; i < len(s); i++ {

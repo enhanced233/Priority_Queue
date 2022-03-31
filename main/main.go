@@ -6,8 +6,7 @@ import (
 )
 
 func main() {
-	q := pq.QueuePriorN{}
-	//q.Initialize(11)
+	q := pq.NewQueuePriorN(11)
 	mapData := map[byte][]int{
 		'H': {1},
 		'e': {2},
