@@ -15,7 +15,7 @@ func (q *queueFIFO) isEmpty() bool {
 	return q.head == nil
 }
 
-func (q *queueFIFO) insert(newNode *node) {
+func (q *queueFIFO) push(newNode *node) {
 	if q.isEmpty() {
 		q.head = newNode
 		q.tail = newNode
@@ -25,7 +25,7 @@ func (q *queueFIFO) insert(newNode *node) {
 	}
 }
 
-func (q *queueFIFO) pull() interface{} {
+func (q *queueFIFO) pop() interface{} {
 	if q.isEmpty() {
 		return nil
 	}

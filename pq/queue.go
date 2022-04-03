@@ -37,17 +37,17 @@ func (q *Queue) Insert(data interface{}, priority uint) {
 		pos := searchPosition(q.keyOrder, priority)
 		q.keyOrder = append(q.keyOrder[:pos], append([]uint{priority}, q.keyOrder[pos:]...)...)
 	}
-	q.fifo[priority].insert(newNode)
+	q.fifo[priority].push(newNode)
 	q.mutex.Unlock()
 }
 
-func (q *Queue) Pull() interface{} {
+func (q *Queue) Fetch() interface{} {
 	q.mutex.Lock()
 	for i := 0; i < len(q.keyOrder); i++ {
 		priority := q.keyOrder[i]
 		if q.keyExists(priority) && !q.fifo[priority].isEmpty() {
 			q.mutex.Unlock()
-			return q.fifo[priority].pull()
+			return q.fifo[priority].pop()
 		}
 	}
 	q.mutex.Unlock()

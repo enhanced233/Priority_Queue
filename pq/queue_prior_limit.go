@@ -9,9 +9,6 @@ type QueuePriorN struct {
 }
 
 func NewQueuePriorN(N uint) *QueuePriorN {
-	if N == 0 {
-		return nil
-	}
 	q := &QueuePriorN{N: N}
 	q.fifo = make([]*queueFIFO, N)
 	for i := uint(0); i < q.N; i++ {
@@ -37,16 +34,16 @@ func (q *QueuePriorN) Insert(data interface{}, priority uint) {
 	}
 	newNode := &node{data: data, priority: priority}
 	q.mutex.Lock()
-	q.fifo[priority].insert(newNode)
+	q.fifo[priority].push(newNode)
 	q.mutex.Unlock()
 }
 
-func (q *QueuePriorN) Pull() interface{} {
+func (q *QueuePriorN) Fetch() interface{} {
 	q.mutex.Lock()
 	defer q.mutex.Unlock()
 	for i := uint(0); i < q.N; i++ {
 		if !q.fifo[i].isEmpty() {
-			return q.fifo[i].pull()
+			return q.fifo[i].pop()
 		}
 	}
 	return nil
