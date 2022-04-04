@@ -6,22 +6,27 @@ import (
 	"testing"
 )
 
+const (
+	N          = 3    // # of priorities
+	selectFunc = "RW" // "MW"/"MR"/"RW"
+	dataSize   = 100000
+	bins       = 10 // # of goroutines in parallel for MW/MR
+)
+
 func TestQueuePrior(t *testing.T) {
-	dataSize := 10000
-	bins := 10 // # of goroutines in parallel for MW/MR
-	N := 3     // # of priorities
-	for ; N <= 81; N *= 3 {
-		fmt.Println("N =", N)
-		testQueueOrder(dataSize, N, t)
-		testQueueConcurrency(dataSize, bins, N, t)
+	n := N
+	for ; n <= 81; n *= N {
+		fmt.Println("N =", n)
+		testQueueOrder(n, t)
+		testQueueConcurrency(n, t)
 	}
 }
 
-func testQueueOrder(dataSize, N int, t *testing.T) {
-	q := NewQueuePriorN(uint(N))
+func testQueueOrder(n int, t *testing.T) {
+	q := NewQueuePriorN(uint(n))
 	num, count := 0, 0
 	for i := 0; i < dataSize; i++ {
-		priority := uint(i * N / dataSize)
+		priority := uint(i * n / dataSize)
 		q.Insert(num, priority)
 		num++
 	}
@@ -40,13 +45,13 @@ func testQueueOrder(dataSize, N int, t *testing.T) {
 	fmt.Println("Functional test - PASS!")
 }
 
-func testQueueConcurrency(dataSize, bins, N int, t *testing.T) {
-	q := NewQueuePriorN(uint(N))
+func testQueueConcurrency(n int, t *testing.T) {
+	q := NewQueuePriorN(uint(n))
 	for i := 0; i < bins; i++ {
 		go func() {
 			in := false
 			for j := 0; j < dataSize/bins; j++ {
-				priority := uint(rand.Intn(N))
+				priority := uint(rand.Intn(n))
 				q.Insert(in, priority)
 				in = !in
 			}
@@ -83,37 +88,102 @@ func testQueueConcurrency(dataSize, bins, N int, t *testing.T) {
 	}
 }
 
-func benchmarkQueue(N int, b *testing.B) {
-	line := "Hello World!"
-	s := ""
-	b.StopTimer()
-	for i := 0; i < 100; i++ {
-		s = s + line
+func benchmarkMW(n int, b *testing.B) {
+	q := NewQueuePriorN(uint(n))
+	end := make(chan int)
+	b.StartTimer()
+	for i := 0; i < bins; i++ {
+		go func(end chan int) {
+			in := false
+			for j := 0; j < dataSize/bins; j++ {
+				priority := uint(rand.Intn(n))
+				q.Insert(in, priority)
+				in = !in
+			}
+			end <- 0
+		}(end)
+	}
+	for i := 0; i < bins; i++ {
+		<-end
+	}
+}
+
+func benchmarkMR(n int, b *testing.B) {
+	q := NewQueuePriorN(uint(n))
+	end := make(chan int)
+	for i := 0; i < bins; i++ {
+		go func(end chan int) {
+			in := false
+			for j := 0; j < dataSize/bins; j++ {
+				priority := uint(rand.Intn(n))
+				q.Insert(in, priority)
+				in = !in
+			}
+			end <- 0
+		}(end)
+	}
+	for i := 0; i < bins; i++ {
+		<-end
 	}
 	b.StartTimer()
-	q := Queue{}
-	for n := 0; n < b.N; n++ {
-		out := ""
-		for i := 0; i < len(s); i++ {
-			var num int
-			if len(s) < N {
-				num = 1
-			} else {
-				num = len(s) / N
+	for i := 0; i < bins; i++ {
+		go func(end chan int) {
+			count := 0
+			for count < dataSize/bins {
+				_, ok := q.Fetch().(bool)
+				if ok {
+					count++
+				}
 			}
-			priority := uint(i / num)
-			q.Insert(s[i], priority)
-		}
-		for !q.IsEmpty() && line != out {
-			out = out + string(q.Fetch().(byte))
-		}
-		if line != out {
+			end <- 0
+		}(end)
+	}
+	for i := 0; i < bins; i++ {
+		<-end
+	}
+}
 
-			panic(s + " - Incorrect output - " + out)
+func benchmarkRW(n int, b *testing.B) {
+	q := NewQueuePriorN(uint(n))
+	b.StartTimer()
+	in := false
+	for i := 0; i < dataSize; i++ {
+		priority := uint(rand.Intn(n))
+		q.Insert(in, priority)
+		in = !in
+	}
+	count := 0
+	for count < dataSize {
+		_, ok := q.Fetch().(bool)
+		if ok {
+			count++
 		}
 	}
 }
 
-func BenchmarkQueue1(b *testing.B) {
-	benchmarkQueue(1, b)
+func benchSelector(n int, b *testing.B) {
+	b.StopTimer()
+	switch selectFunc {
+	case "RW":
+		benchmarkRW(n, b)
+	case "MW":
+		benchmarkMW(n, b)
+	case "MR":
+		benchmarkMR(n, b)
+	}
+}
+
+func BenchmarkQueueN(b *testing.B) {
+	n := N // # of priorities
+	benchSelector(n, b)
+}
+
+func BenchmarkQueue4N(b *testing.B) {
+	n := 4 * N // # of priorities
+	benchSelector(n, b)
+}
+
+func BenchmarkQueue40N(b *testing.B) {
+	n := 40 * N // # of priorities
+	benchSelector(n, b)
 }
