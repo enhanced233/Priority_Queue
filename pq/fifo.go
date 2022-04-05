@@ -6,16 +6,16 @@ type node struct {
 	next     *node
 }
 
-type queueFIFO struct {
+type FIFO struct {
 	head *node
 	tail *node
 }
 
-func (q *queueFIFO) isEmpty() bool {
+func (q *FIFO) isEmpty() bool {
 	return q.head == nil
 }
 
-func (q *queueFIFO) push(newNode *node) {
+func (q *FIFO) push(newNode *node) {
 	if q.isEmpty() {
 		q.head = newNode
 		q.tail = newNode
@@ -25,7 +25,7 @@ func (q *queueFIFO) push(newNode *node) {
 	}
 }
 
-func (q *queueFIFO) pop() interface{} {
+func (q *FIFO) pop() interface{} {
 	if q.isEmpty() {
 		return nil
 	}

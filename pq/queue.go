@@ -4,7 +4,7 @@ import "sync"
 
 type Queue struct {
 	mutex    sync.Mutex
-	fifo     map[uint]*queueFIFO
+	fifo     map[uint]*FIFO
 	keyOrder []uint
 }
 
@@ -28,12 +28,12 @@ func (q *Queue) keyExists(priority uint) bool {
 func (q *Queue) Insert(data interface{}, priority uint) {
 	q.mutex.Lock()
 	if q.fifo == nil {
-		q.fifo = make(map[uint]*queueFIFO)
+		q.fifo = make(map[uint]*FIFO)
 		q.keyOrder = []uint{}
 	}
 	newNode := &node{data: data, priority: priority}
 	if !q.keyExists(priority) {
-		q.fifo[priority] = &queueFIFO{}
+		q.fifo[priority] = &FIFO{}
 		pos := searchPosition(q.keyOrder, priority)
 		q.keyOrder = append(q.keyOrder[:pos], append([]uint{priority}, q.keyOrder[pos:]...)...)
 	}
