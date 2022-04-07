@@ -5,11 +5,6 @@ import (
 	"testing"
 )
 
-func TestFifo_Create(t *testing.T) {
-	q := FIFO{}
-	assert.NotNil(t, q)
-}
-
 func TestFifo_Pop(t *testing.T) {
 	q := FIFO{}
 	assert.Nil(t, q.pop())
@@ -21,17 +16,37 @@ func TestFifo_Pop(t *testing.T) {
 	assert.Equal(t, 17, v)
 }
 
+func TestFifo_Push(t *testing.T) {
+	q := FIFO{}
+	q.push(&node{data: 17})
+	v, ok := q.head.data.(int)
+	assert.True(t, ok)
+	assert.Equal(t, 17, v)
+	assert.Equal(t, q.head, q.tail)
+	assert.Nil(t, q.tail.next)
+
+	q.push(&node{data: 55})
+	v, ok = q.head.data.(int)
+	assert.True(t, ok)
+	assert.Equal(t, 17, v)
+	v, ok = q.tail.data.(int)
+	assert.True(t, ok)
+	assert.Equal(t, 55, v)
+	assert.Equal(t, q.head.next, q.tail)
+	assert.Nil(t, q.tail.next)
+}
+
 func TestFifo_Order(t *testing.T) {
 	q := FIFO{}
 	q.push(&node{data: 13})
 	q.push(&node{data: 2})
-	q.push(&node{data: 33})
-	expected := []int{13, 2, 33}
-	for i := 0; i < 3; i++ {
-		e := q.pop()
-		v, ok := e.(int)
-		assert.True(t, ok)
-		assert.Equal(t, expected[i], v)
-	}
+	e := q.pop()
+	v, ok := e.(int)
+	assert.True(t, ok)
+	assert.Equal(t, 13, v)
+	e = q.pop()
+	v, ok = e.(int)
+	assert.True(t, ok)
+	assert.Equal(t, 2, v)
 	assert.Nil(t, q.pop())
 }
