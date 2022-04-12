@@ -5,9 +5,11 @@ import (
 	"testing"
 )
 
+const k = 3
+
 func Benchmark_Write(b *testing.B) {
 	b.StopTimer()
-	q := NewQueuePriorN(3)
+	q := NewPq(k)
 	b.StartTimer()
 	for i := 0; i < b.N; i++ {
 		q.Insert(true, 0)
@@ -16,8 +18,7 @@ func Benchmark_Write(b *testing.B) {
 
 func Benchmark_Read(b *testing.B) {
 	b.StopTimer()
-	q := NewQueuePriorN(3)
-
+	q := NewPq(k)
 	for i := 0; i < b.N; i++ {
 		q.Insert(true, 0)
 	}
@@ -30,7 +31,7 @@ func Benchmark_Read(b *testing.B) {
 
 func Benchmark_WriteParallel(b *testing.B) {
 	b.StopTimer()
-	q := NewQueuePriorN(3)
+	q := NewPq(k)
 	b.StartTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
@@ -41,7 +42,7 @@ func Benchmark_WriteParallel(b *testing.B) {
 
 func Benchmark_ReadParallel(b *testing.B) {
 	b.StopTimer()
-	q := NewQueuePriorN(3)
+	q := NewPq(k)
 	for i := 0; i < b.N; i++ {
 		q.Insert(true, 0)
 	}
@@ -55,8 +56,7 @@ func Benchmark_ReadParallel(b *testing.B) {
 
 func Benchmark_WriteParallelRandom(b *testing.B) {
 	b.StopTimer()
-	const k = 3
-	q := NewQueuePriorN(k)
+	q := NewPq(k)
 	b.StartTimer()
 	b.RunParallel(func(pb *testing.PB) {
 		for pb.Next() {
@@ -67,8 +67,7 @@ func Benchmark_WriteParallelRandom(b *testing.B) {
 
 func Benchmark_ReadParallelRandom(b *testing.B) {
 	b.StopTimer()
-	const k = 3
-	q := NewQueuePriorN(k)
+	q := NewPq(k)
 	for i := 0; i < b.N; i++ {
 		q.Insert(true, uint(rand.Intn(k)))
 	}

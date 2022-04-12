@@ -6,26 +6,18 @@ import (
 )
 
 func main() {
-	q := pq.NewQueuePriorN(10)
-	mapData := map[byte][]int{
-		'H': {0},
-		'e': {1},
-		'l': {2, 2, 8},
-		'o': {3, 6},
-		' ': {4},
-		'W': {5},
-		'r': {7},
-		'd': {9},
-	}
-	for i, v := range mapData {
-		for j := 0; j < len(v); j++ {
-			q.Insert(i, uint(v[j]))
-		}
-
-	}
+	q := pq.NewPq(10)
+	q.Insert(byte('e'), 1)
+	q.Insert(byte('l'), 1)
+	q.Insert(byte('o'), 3)
+	q.Insert(byte('H'), 0)
+	q.Insert(byte('l'), 2)
 	var s string
 	for !q.IsEmpty() {
-		s = s + string(q.Fetch().(byte))
+		data, ok := q.Fetch().(byte)
+		if ok {
+			s = s + string(data)
+		}
 	}
 	fmt.Println(s)
 }
