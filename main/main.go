@@ -6,7 +6,7 @@ import (
 )
 
 func main() {
-	q := pq.NewPq(10)
+	q := pq.NewPq(4)
 	q.Insert(byte('e'), 1)
 	q.Insert(byte('l'), 1)
 	q.Insert(byte('o'), 3)

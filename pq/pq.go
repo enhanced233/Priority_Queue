@@ -3,7 +3,7 @@ package pq
 import "sync"
 
 type PriorityQueue struct {
-	fifo            []*FIFO
+	fifo            []*fifo
 	numOfPriorities uint
 	mutex           sync.Mutex
 	firstAvailable  uint // Points to first available priority in the pq.
@@ -14,10 +14,10 @@ func NewPq(numOfPriorities uint) *PriorityQueue {
 		return nil
 	}
 	q := &PriorityQueue{numOfPriorities: numOfPriorities}
-	q.fifo = make([]*FIFO, numOfPriorities)
+	q.fifo = make([]*fifo, numOfPriorities)
 	q.firstAvailable = numOfPriorities
 	for i := uint(0); i < q.numOfPriorities; i++ {
-		q.fifo[i] = &FIFO{}
+		q.fifo[i] = &fifo{}
 	}
 	return q
 }
@@ -25,10 +25,11 @@ func NewPq(numOfPriorities uint) *PriorityQueue {
 func (q *PriorityQueue) IsEmpty() bool {
 	q.mutex.Lock()
 	defer q.mutex.Unlock()
-	for i := uint(0); i < q.numOfPriorities; i++ {
-		if !q.fifo[i].isEmpty() {
+	for q.firstAvailable < q.numOfPriorities {
+		if !q.fifo[q.firstAvailable].isEmpty() {
 			return false
 		}
+		q.firstAvailable++
 	}
 	return true
 }
@@ -54,9 +55,8 @@ func (q *PriorityQueue) Fetch() interface{} {
 	for q.firstAvailable < q.numOfPriorities {
 		if !q.fifo[q.firstAvailable].isEmpty() {
 			return q.fifo[q.firstAvailable].pop()
-		} else {
-			q.firstAvailable++
 		}
+		q.firstAvailable++
 	}
 	return nil
 }

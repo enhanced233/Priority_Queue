@@ -6,7 +6,7 @@ import (
 )
 
 func TestFifo_Pop(t *testing.T) {
-	q := FIFO{}
+	q := fifo{}
 	assert.Nil(t, q.pop())
 	q.push(&node{data: 17})
 	e := q.pop()
@@ -17,7 +17,7 @@ func TestFifo_Pop(t *testing.T) {
 }
 
 func TestFifo_Push(t *testing.T) {
-	q := FIFO{}
+	q := fifo{}
 	q.push(&node{data: 17})
 	v, ok := q.head.data.(int)
 	assert.True(t, ok)
@@ -37,7 +37,7 @@ func TestFifo_Push(t *testing.T) {
 }
 
 func TestFifo_Order(t *testing.T) {
-	q := FIFO{}
+	q := fifo{}
 	q.push(&node{data: 13})
 	q.push(&node{data: 2})
 	e := q.pop()

@@ -95,5 +95,4 @@ func TestPQ_Concurrency(t *testing.T) {
 			}
 		}()
 	}
-	assert.Nil(t, q.Fetch())
 }
