@@ -1,9 +1,9 @@
 # Priority Queue 
 A simple to use priority queue with K priorities (K determined by user) implemented by GO.
 
-	- Data type is an empty interface to accommodate all data types, therefore its up to the user to convert them back and check for errors (as shown in usage).
-	- Safe for concurrency.
-	- Inserting multiple items with the same priority number will fetch them in order of FIFO. 
+- Data type is an empty interface to accommodate all data types, therefore its up to the user to convert them back and check for errors (as shown in usage).
+- Safe for concurrency.
+- Inserting multiple items with the same priority number will fetch them in order of FIFO. 
 ## Example
 
 ### Import
