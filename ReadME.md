@@ -35,7 +35,9 @@ fmt.Println(s)
 For N data points and a queue with K priorities:
 ### Time Complexity
 Insert -  O(1) 
+
 Fetch - O(K) with an asymptotic complexity of O(1)
+
 IsEmpty - O(K) with an asymptotic complexity of O(1)
 
 ### Space Complexity
