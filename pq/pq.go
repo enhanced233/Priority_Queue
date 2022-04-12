@@ -13,9 +13,11 @@ func NewPq(numOfPriorities uint) *PriorityQueue {
 	if numOfPriorities == 0 {
 		return nil
 	}
-	q := &PriorityQueue{numOfPriorities: numOfPriorities}
-	q.fifo = make([]*fifo, numOfPriorities)
-	q.firstAvailable = numOfPriorities
+	q := &PriorityQueue{
+		fifo:            make([]*fifo, numOfPriorities),
+		numOfPriorities: numOfPriorities,
+		firstAvailable:  numOfPriorities,
+	}
 	for i := uint(0); i < q.numOfPriorities; i++ {
 		q.fifo[i] = &fifo{}
 	}
@@ -37,7 +39,7 @@ func (q *PriorityQueue) IsEmpty() bool {
 // Insert - Inserts data into the desired priority queue.
 func (q *PriorityQueue) Insert(data interface{}, priority uint) {
 	if priority >= q.numOfPriorities {
-		priority = q.numOfPriorities - 1
+		return
 	}
 	newNode := &node{data: data, priority: priority}
 	q.mutex.Lock()

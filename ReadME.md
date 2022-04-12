@@ -34,9 +34,17 @@ fmt.Println(s)
 ## Complexity
 For N data points and a queue with K priorities:
 ### Time Complexity
-Insert -  O(1) 
-Fetch - O(K) with an asymptotic complexity of O(1)
-IsEmpty - O(K) with an asymptotic complexity of O(1)
+
+- Write -  O(1)
+- Read - O(K)
 
 ### Space Complexity
-O(N+K)
+- O(N+K)
+
+## Optimization
+The time complexity of the reading is always O(K) since we are required to go through all the lists 
+in order from the first priority to the last, however I found a simple solution to optimize it by 
+adding the firstAvailable parameter which saves the first available list.
+
+This solution reduces read time to O(1) in best case scenario, and statistically it should lower the 
+overall read time on average.
